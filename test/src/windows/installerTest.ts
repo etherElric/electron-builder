@@ -1,3 +1,4 @@
+import BluebirdPromise from "bluebird-lst"
 import { Arch, archFromString, Platform } from "electron-builder"
 import { readFile, writeFile } from "fs-extra-p"
 import { safeLoad } from "js-yaml"
@@ -23,6 +24,31 @@ test.ifNotCiMac("assisted", app({
   projectDirCreated: projectDir => {
     return copyTestAsset("license.txt", path.join(projectDir, "build", "license.txt"))
   },
+}))
+
+test.ifNotCiMac("assisted with license buttons", app({
+    targets: nsisTarget,
+    config: {
+      nsis: {
+        oneClick: false,
+        language: "1031",
+      },
+      win: {
+        legalTrademarks: "My Trademark"
+      },
+    }
+  }, {
+  signedWin: true,
+  projectDirCreated: projectDir => BluebirdPromise.all([
+    copyTestAsset("license_en.txt", path.join(projectDir, "build", "license_en.txt")),
+    copyTestAsset("license_fr.txt", path.join(projectDir, "build", "license_fr.txt")),
+    copyTestAsset("license_ja.txt", path.join(projectDir, "build", "license_ja.txt")),
+    copyTestAsset("license_ko.txt", path.join(projectDir, "build", "license_ko.txt")),
+    copyTestAsset("licensebuttons_en.json", path.join(projectDir, "build", "licensebuttons_en.json")),
+    copyTestAsset("licensebuttons_fr.json", path.join(projectDir, "build", "licensebuttons_fr.json")),
+    copyTestAsset("licensebuttons_ja.json", path.join(projectDir, "build", "licensebuttons_ja.json")),
+    copyTestAsset("licensebuttons_ko.json", path.join(projectDir, "build", "licensebuttons_ko.json"))
+  ])
 }))
 
 test.ifAll.ifNotCiMac("allowElevation false, app requestedExecutionLevel admin", app({
